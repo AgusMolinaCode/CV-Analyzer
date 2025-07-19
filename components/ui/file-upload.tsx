@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
+import { SignInButton } from "@clerk/nextjs";
 
 const mainVariant = {
   initial: {
@@ -27,8 +28,10 @@ const secondaryVariant = {
 
 export const FileUpload = ({
   onChange,
+  isSignedIn = true,
 }: {
   onChange?: (files: File[]) => void;
+  isSignedIn?: boolean;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,17 +42,56 @@ export const FileUpload = ({
   };
 
   const handleClick = () => {
-    fileInputRef.current?.click();
+    if (isSignedIn) {
+      fileInputRef.current?.click();
+    }
   };
 
   const { getRootProps, isDragActive } = useDropzone({
     multiple: false,
     noClick: true,
-    onDrop: handleFileChange,
+    onDrop: isSignedIn ? handleFileChange : () => {},
     onDropRejected: (error) => {
       console.log(error);
     },
   });
+
+  if (!isSignedIn) {
+    return (
+      <div className="w-full">
+        <motion.div
+          className="p-10 group/file block rounded-lg w-full relative overflow-hidden opacity-60"
+        >
+          <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
+            <GridPattern />
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
+              Subir CV
+            </p>
+            <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2 mb-4">
+              Inicia sesión para agregar tu CV
+            </p>
+            <SignInButton>
+              <button className="relative z-20 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                Iniciar Sesión
+              </button>
+            </SignInButton>
+            <div className="relative w-full mt-10 max-w-xl mx-auto">
+              <motion.div
+                className={cn(
+                  "relative z-40 bg-white dark:bg-neutral-900 flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md opacity-50",
+                  "shadow-[0px_10px_50px_rgba(0,0,0,0.1)]"
+                )}
+              >
+                <IconUpload className="h-4 w-4 text-neutral-600 dark:text-neutral-300" />
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full" {...getRootProps()}>

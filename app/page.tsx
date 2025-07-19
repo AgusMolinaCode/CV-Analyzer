@@ -9,6 +9,7 @@ import { Benefits } from "@/components/ui/Benefits";
 import { Testimonials } from "@/components/ui/Testimonials";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 const Page = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -38,7 +39,7 @@ const Page = () => {
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
               Analizá currículums con{" "}
-              <span className="text-primary">inteligencia artificial</span>
+              <span className="text-primary">inteligencia artificial</span> 
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
@@ -64,7 +65,12 @@ const Page = () => {
 
           {/* File Upload Section */}
           <div id="upload-section" className="max-w-2xl mx-auto">
-            <FileUpload onChange={handleFileUpload} />
+            <SignedOut>
+              <FileUpload onChange={handleFileUpload} isSignedIn={false} />
+            </SignedOut>
+            <SignedIn>
+              <FileUpload onChange={handleFileUpload} isSignedIn={true} />
+            </SignedIn>
           </div>
         </div>
 
