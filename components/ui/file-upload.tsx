@@ -4,6 +4,11 @@ import { motion } from "motion/react";
 import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
 import { SignInButton } from "@clerk/nextjs";
+import { uploadPDF } from "@/lib/actions";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle } from "lucide-react";
+import { LoadingSteps } from "@/components/ui/LoadingSteps";
+import { useRouter } from "next/navigation";
 
 const mainVariant = {
   initial: {
@@ -34,11 +39,57 @@ export const FileUpload = ({
   isSignedIn?: boolean;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [showLoadingSteps, setShowLoadingSteps] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [uploadResult, setUploadResult] = useState<{
+    success: boolean;
+    message?: string;
+    error?: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const handleFileChange = (newFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setFiles(newFiles);
     onChange && onChange(newFiles);
+    setUploadResult(null);
+  };
+
+  const handleUpload = async () => {
+    if (!files.length || !isSignedIn) return;
+
+    setUploading(true);
+    setShowLoadingSteps(true);
+    setUploadResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", files[0]);
+
+      const result = await uploadPDF(formData);
+      setUploadResult(result);
+
+      if (result.success) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000);
+      }
+    } catch (error) {
+      setUploadResult({
+        success: false,
+        error: "Error uploading file",
+      });
+    } finally {
+      setUploading(false);
+      setShowLoadingSteps(false);
+    }
+  };
+
+  const handleLoadingComplete = () => {
+    // This will be called when LoadingSteps completes all steps
+    // but we'll wait for the actual API response
   };
 
   const handleClick = () => {
@@ -50,6 +101,9 @@ export const FileUpload = ({
   const { getRootProps, isDragActive } = useDropzone({
     multiple: false,
     noClick: true,
+    accept: {
+      "application/pdf": [".pdf"],
+    },
     onDrop: isSignedIn ? handleFileChange : () => {},
     onDropRejected: (error) => {
       console.log(error);
@@ -59,9 +113,15 @@ export const FileUpload = ({
   if (!isSignedIn) {
     return (
       <div className="w-full">
-        <motion.div
-          className="p-10 group/file block rounded-lg w-full relative overflow-hidden opacity-60"
-        >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            Subir CV para Análisis
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            Selecciona un archivo PDF para comenzar el análisis
+          </p>
+        </div>
+        <motion.div className="p-10 group/file block rounded-lg w-full relative overflow-hidden opacity-60">
           <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
             <GridPattern />
           </div>
@@ -93,8 +153,53 @@ export const FileUpload = ({
     );
   }
 
+  if (showSuccess) {
+    return (
+      <div className="w-full max-w-md mx-auto p-8 bg-card rounded-lg border border-border text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-4"
+        >
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+        </motion.div>
+        <h3 className="text-xl font-semibold text-green-700 mb-2">
+          CV cargado correctamente
+        </h3>
+        <p className="text-muted-foreground mb-4">
+          Redirigiendo al dashboard...
+        </p>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto"
+        />
+      </div>
+    );
+  }
+
+  if (showLoadingSteps) {
+    return (
+      <div className="w-full">
+        <LoadingSteps
+          isLoading={showLoadingSteps}
+          onComplete={handleLoadingComplete}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full" {...getRootProps()}>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-foreground mb-4">
+          Subir CV para Análisis
+        </h2>
+        <p className="text-lg text-muted-foreground">
+          Selecciona un archivo PDF para comenzar el análisis
+        </p>
+      </div>
       <motion.div
         onClick={handleClick}
         whileHover="animate"
@@ -104,6 +209,7 @@ export const FileUpload = ({
           ref={fileInputRef}
           id="file-upload-handle"
           type="file"
+          accept=".pdf"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
@@ -112,10 +218,10 @@ export const FileUpload = ({
         </div>
         <div className="flex flex-col items-center justify-center">
           <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
-            Upload file
+            Subir CV en PDF
           </p>
           <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2">
-            Drag or drop your files here or click to upload
+            Arrastra y suelta tu archivo PDF aquí o haz clic para subir
           </p>
           <div className="relative w-full mt-10 max-w-xl mx-auto">
             {files.length > 0 &&
@@ -206,6 +312,38 @@ export const FileUpload = ({
           </div>
         </div>
       </motion.div>
+
+      {/* Upload Button and Result - Outside the dropzone */}
+      {files.length > 0 && (
+        <div className="mt-6 space-y-4">
+          <Button
+            onClick={handleUpload}
+            disabled={uploading}
+            className="w-full"
+          >
+            {uploading ? "Subiendo..." : "Subir CV"}
+          </Button>
+
+          {uploadResult && (
+            <div
+              className={`flex items-center space-x-2 p-3 rounded-lg ${
+                uploadResult.success
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+              }`}
+            >
+              {uploadResult.success ? (
+                <CheckCircle className="w-4 h-4" />
+              ) : (
+                <XCircle className="w-4 h-4" />
+              )}
+              <span className="text-sm">
+                {uploadResult.message || uploadResult.error}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

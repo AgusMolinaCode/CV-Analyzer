@@ -1,29 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/ui/file-upload";
-import { Header } from "@/components/ui/Header";
 import HowItWorks from "@/components/ui/HowItWorks";
 import { Benefits } from "@/components/ui/Benefits";
 import { Testimonials } from "@/components/ui/Testimonials";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 const Page = () => {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
-  const handleGetStarted = () => {
-    const uploadSection = document.getElementById("upload-section");
-    uploadSection?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const [files, setFiles] = useState<File[]>([]);
-  const handleFileUpload = (files: File[]) => {
-    setFiles(files);
-    console.log(files);
-  };
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -39,7 +25,7 @@ const Page = () => {
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
               Analizá currículums con{" "}
-              <span className="text-primary">inteligencia artificial</span> 
+              <span className="text-primary">inteligencia artificial</span>
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
@@ -65,12 +51,12 @@ const Page = () => {
 
           {/* File Upload Section */}
           <div id="upload-section" className="max-w-2xl mx-auto">
-            <SignedOut>
-              <FileUpload onChange={handleFileUpload} isSignedIn={false} />
-            </SignedOut>
             <SignedIn>
-              <FileUpload onChange={handleFileUpload} isSignedIn={true} />
+              <FileUpload isSignedIn={true} />
             </SignedIn>
+            <SignedOut>
+              <FileUpload isSignedIn={false} />
+            </SignedOut>
           </div>
         </div>
 
