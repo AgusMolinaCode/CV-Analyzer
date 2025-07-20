@@ -26,14 +26,14 @@ export interface Candidates {
     stack_principal:           string[];
     lenguajes_programacion:    string[];
     frameworks_principales:    string[];
-    bases_datos:               any[];
-    cloud_platforms:           any[];
+    bases_datos:               string[];
+    cloud_platforms:           string[];
     herramientas_devops:       string[];
     metodologias_agile:        string[];
     soft_skills:               string[];
     experiencia_laboral:       ExperienciaLaboral[];
     educacion:                 string;
-    proyectos_destacados:      any[];
+    proyectos_destacados:      string[];
     certificaciones:           string[];
     english_level:             string;
     linkedin_url:              string;

@@ -50,13 +50,11 @@ export function LoadingSteps({ isLoading, onComplete }: LoadingStepsProps) {
     }
 
     let timeoutId: NodeJS.Timeout;
-    let totalElapsed = 0;
 
     const progressSteps = () => {
       if (currentStep < steps.length - 1) {
         const currentStepDuration = steps[currentStep].duration;
         timeoutId = setTimeout(() => {
-          totalElapsed += currentStepDuration;
           setCurrentStep((prev) => prev + 1);
           progressSteps();
         }, currentStepDuration);
@@ -71,7 +69,7 @@ export function LoadingSteps({ isLoading, onComplete }: LoadingStepsProps) {
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [isLoading, currentStep, onComplete]);
+  }, [isLoading, currentStep, onComplete, steps]);
 
   if (!isLoading) return null;
 
@@ -88,7 +86,6 @@ export function LoadingSteps({ isLoading, onComplete }: LoadingStepsProps) {
         {steps.map((step, index) => {
           const isActive = index === currentStep;
           const isCompleted = index < currentStep;
-          const isPending = index > currentStep;
 
           const Icon = step.icon;
 

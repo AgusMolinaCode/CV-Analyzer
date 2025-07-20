@@ -48,7 +48,7 @@ export function CandidateFilters({ filters, onFiltersChange, onClearFilters }: C
   const showMoreStacks = () => {
     setVisibleStackCount(prev => Math.min(prev + 10, allStackOptions.length));
   };
-  const updateFilter = (key: keyof CandidateFilters, value: any) => {
+  const updateFilter = (key: keyof CandidateFilters, value: string[] | boolean | number | undefined) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 

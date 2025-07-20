@@ -1,18 +1,9 @@
 import { type Metadata } from "next";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/ui/theme-toggle";
-import NavbarComponent from "@/components/ui/Navbar";
 import { Header } from "@/components/ui/Header";
 
 const outfit = Outfit({

@@ -18,12 +18,10 @@ import {
   Mail,
   Phone,
   Globe,
-  Calendar,
   Github,
   Linkedin,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CustomMatchScore } from "@/components/ui/CustomMatchScore";
 import type { Candidates } from "@/lib/interfaces";
 
@@ -32,7 +30,6 @@ interface CandidateDetailModalProps {
   supabaseCandidate?: Candidates | null;
   isOpen: boolean;
   onClose: () => void;
-  onScheduleInterview: (candidate: Candidate) => void;
 }
 
 export function CandidateDetailModal({
@@ -40,17 +37,8 @@ export function CandidateDetailModal({
   supabaseCandidate,
   isOpen,
   onClose,
-  onScheduleInterview,
 }: CandidateDetailModalProps) {
   if (!candidate) return null;
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,10 +46,6 @@ export function CandidateDetailModal({
         <DialogHeader>
           <DialogTitle>
             <div className="flex gap-2 md:flex-row flex-col max-w-5/6 md:w-full">
-              {/* <Button onClick={() => onScheduleInterview(candidate)}>
-                <Calendar className="h-4 w-4 mr-2" />
-                Agendar Entrevista
-              </Button> */}
               <Button variant="outline" asChild>
                 <a
                   href={candidate.pdfUrl}
@@ -80,7 +64,6 @@ export function CandidateDetailModal({
           <div className="space-y-6">
             {/* Header Section */}
             <div className="flex items-start gap-4">
-              {/* <Avatar className="h-16 w-16"> */}
               {/* Custom Match Score */}
               {supabaseCandidate && (
                 <div className="flex justify-center">
@@ -94,7 +77,9 @@ export function CandidateDetailModal({
               )}
 
               <div className="flex-1">
-                <h2 className="md:text-2xl text-xl font-bold">{candidate.fullName}</h2>
+                <h2 className="md:text-2xl text-xl font-bold">
+                  {candidate.fullName}
+                </h2>
                 <p className="text-lg text-muted-foreground">
                   {candidate.professionalTitle}
                 </p>
@@ -344,10 +329,6 @@ export function CandidateDetailModal({
               <>
                 <Separator />
                 <div>
-                  <h3 className="font-semibold mb-4 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Entrevistas Programadas
-                  </h3>
                   <div className="space-y-3">
                     {candidate.interviews.map((interview) => (
                       <div key={interview.id} className="border rounded-lg p-3">

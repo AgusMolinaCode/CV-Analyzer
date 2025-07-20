@@ -1,5 +1,5 @@
-import type { Candidates } from './interfaces'
-import type { Candidate } from '@/types/candidate'
+import type { Candidates, ExperienciaLaboral } from './interfaces'
+import type { Candidate, WorkExperience } from '@/types/candidate'
 
 // Function to get full Supabase candidate data for detailed scoring
 export const getSupabaseCandidateById = (candidates: Candidates[], id: string): Candidates | null => {
@@ -30,7 +30,6 @@ export const calculateCustomMatchScore = (candidate: Candidates): number => {
   totalScore += Math.min(technicalScore * technicalWeight, 35);
 
   // 2. Experience Assessment (25% weight)
-  const experienceWeight = 0.25;
   const yearsExperience = candidate.anos_experiencia || 0;
   
   let experienceScore = 0;
@@ -210,7 +209,7 @@ const mapProcessStatus = (status: string): 'pendiente' | 'revisado' | 'entrevist
 }
 
 // Helper function to map work experience
-const mapWorkExperience = (experienciaLaboral: any[]): any[] => {
+const mapWorkExperience = (experienciaLaboral: ExperienciaLaboral[]): WorkExperience[] => {
   if (!experienciaLaboral || !Array.isArray(experienciaLaboral)) {
     return []
   }

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Candidate } from "@/types/candidate";
-import { Eye, Calendar, MapPin, Globe } from "lucide-react";
+import { Eye, MapPin, Globe } from "lucide-react";
 import { MatchScoreChart } from "@/components/ui/MatchScoreChart";
 import { CustomMatchScore } from "@/components/ui/CustomMatchScore";
 import type { Candidates } from "@/lib/interfaces";
@@ -26,13 +26,14 @@ function CandidateCard({
   candidate,
   supabaseCandidate,
   onViewDetails,
-  onScheduleInterview,
   onChangeStatus,
   onDeleteCandidate,
 }: CandidateCardProps) {
   // Function to truncate text with ellipsis
   const truncateText = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   return (
@@ -105,10 +106,6 @@ function CandidateCard({
               <Eye className="h-4 w-4 mr-1" />
               Ver
             </Button>
-            {/* <Button size="sm" onClick={() => onScheduleInterview(candidate)}>
-              <Calendar className="h-4 w-4 mr-1" />
-              Agendar
-            </Button> */}
           </div>
         </div>
       </CardContent>

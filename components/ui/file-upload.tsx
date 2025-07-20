@@ -52,7 +52,7 @@ export const FileUpload = ({
 
   const handleFileChange = (newFiles: File[]) => {
     setFiles(newFiles);
-    onChange && onChange(newFiles);
+    onChange?.(newFiles);
     setUploadResult(null);
   };
 
@@ -76,7 +76,7 @@ export const FileUpload = ({
           router.push("/dashboard");
         }, 2000);
       }
-    } catch (error) {
+    } catch {
       setUploadResult({
         success: false,
         error: "Error uploading file",

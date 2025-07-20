@@ -42,7 +42,7 @@ export function Testimonials() {
                 <Quote className="h-8 w-8 text-primary mx-auto mb-6" />
                 
                 <blockquote className="text-lg text-foreground font-medium mb-6 leading-relaxed">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </blockquote>
                 
                 <div className="space-y-1">

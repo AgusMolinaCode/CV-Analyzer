@@ -36,7 +36,7 @@ export const fetchCVById = async (id: string): Promise<Candidates | null> => {
 // Update CV status
 export const updateCVStatus = async (id: string, estado: string): Promise<boolean> => {
   
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('cv_analysis')
     .update({ estado_del_proceso: estado })
     .eq('id', id)

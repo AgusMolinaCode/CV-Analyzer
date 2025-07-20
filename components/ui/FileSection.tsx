@@ -39,7 +39,7 @@ export function FileSection() {
         const input = document.getElementById("pdf-upload") as HTMLInputElement;
         if (input) input.value = "";
       }
-    } catch (error) {
+    } catch {
       setUploadResult({
         success: false,
         error: "Error uploading file",

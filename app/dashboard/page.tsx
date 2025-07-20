@@ -1,17 +1,30 @@
-"use client"
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import CandidateCard from "@/components/ui/CandidateCard";
 import { CandidateFilters } from "@/components/ui/CandidateFilters";
 import { CandidateDetailModal } from "@/components/ui/CandidateDetailModal";
-import { InterviewModal } from "@/components/ui/InterviewModal";
-import { fetchUserCVs, updateCVStatus, deleteCVById } from "@/lib/supabase-queries";
+import {
+  fetchUserCVs,
+  updateCVStatus,
+  deleteCVById,
+} from "@/lib/supabase-queries";
 import { mapSupabaseCandidateToFrontend } from "@/lib/adapters";
-import type { Candidate, CandidateFilters as CandidateFiltersType } from "@/types/candidate";
+import type {
+  Candidate,
+  CandidateFilters as CandidateFiltersType,
+} from "@/types/candidate";
+import type { Candidates } from "@/lib/interfaces";
 import { Search, Users, Filter, Grid, List } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -26,13 +39,17 @@ import {
 export default function Dashboard() {
   const { user } = useUser();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [supabaseCandidates, setSupabaseCandidates] = useState<any[]>([]);
+  const [supabaseCandidates, setSupabaseCandidates] = useState<Candidates[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("matchScore");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
+    null
+  );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
 
@@ -42,7 +59,7 @@ export default function Dashboard() {
     processStatus: [],
     remoteAvailable: undefined,
     minMatchScore: 0,
-    maxMatchScore: 100
+    maxMatchScore: 100,
   });
 
   // Fetch candidates from Supabase when user is available
@@ -53,11 +70,12 @@ export default function Dashboard() {
         try {
           const fetchedSupabaseCandidates = await fetchUserCVs(user.id);
           setSupabaseCandidates(fetchedSupabaseCandidates);
-          const mappedCandidates = fetchedSupabaseCandidates.map(mapSupabaseCandidateToFrontend);
+          const mappedCandidates = fetchedSupabaseCandidates.map(
+            mapSupabaseCandidateToFrontend
+          );
           setCandidates(mappedCandidates);
-        } catch (error) {
-         
-          toast.error('Error al cargar los candidatos');
+        } catch {
+          toast.error("Error al cargar los candidatos");
         } finally {
           setLoading(false);
         }
@@ -68,35 +86,51 @@ export default function Dashboard() {
   }, [user?.id]);
 
   const filteredAndSortedCandidates = useMemo(() => {
-    let filtered = candidates.filter(candidate => {
+    const filtered = candidates.filter((candidate) => {
       // Search filter
-      const matchesSearch = searchTerm === "" || 
+      const matchesSearch =
+        searchTerm === "" ||
         candidate.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        candidate.professionalTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        candidate.mainStack.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
+        candidate.professionalTitle
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        candidate.mainStack.some((tech) =>
+          tech.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
       // Seniority filter
-      const matchesSeniority = filters.seniority.length === 0 || 
+      const matchesSeniority =
+        filters.seniority.length === 0 ||
         filters.seniority.includes(candidate.seniority);
 
       // Status filter
-      const matchesStatus = filters.processStatus.length === 0 || 
+      const matchesStatus =
+        filters.processStatus.length === 0 ||
         filters.processStatus.includes(candidate.processStatus);
 
       // Stack filter
-      const matchesStack = filters.mainStack.length === 0 || 
-        filters.mainStack.some(tech => candidate.mainStack.includes(tech));
+      const matchesStack =
+        filters.mainStack.length === 0 ||
+        filters.mainStack.some((tech) => candidate.mainStack.includes(tech));
 
       // Remote filter
-      const matchesRemote = filters.remoteAvailable === undefined || 
+      const matchesRemote =
+        filters.remoteAvailable === undefined ||
         candidate.remoteAvailable === filters.remoteAvailable;
 
       // Match score filter
-      const matchesScore = candidate.matchScore >= filters.minMatchScore && 
+      const matchesScore =
+        candidate.matchScore >= filters.minMatchScore &&
         candidate.matchScore <= filters.maxMatchScore;
 
-      return matchesSearch && matchesSeniority && matchesStatus && 
-             matchesStack && matchesRemote && matchesScore;
+      return (
+        matchesSearch &&
+        matchesSeniority &&
+        matchesStatus &&
+        matchesStack &&
+        matchesRemote &&
+        matchesScore
+      );
     });
 
     // Sort candidates
@@ -107,9 +141,16 @@ export default function Dashboard() {
         case "name":
           return a.fullName.localeCompare(b.fullName);
         case "createdAt":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         case "seniority":
-          const seniorityOrder = { "Junior": 1, "Semi-Senior": 2, "Senior": 3, "Lead": 4 };
+          const seniorityOrder = {
+            Junior: 1,
+            "Semi-Senior": 2,
+            Senior: 3,
+            Lead: 4,
+          };
           return seniorityOrder[b.seniority] - seniorityOrder[a.seniority];
         default:
           return 0;
@@ -129,28 +170,33 @@ export default function Dashboard() {
     setIsInterviewModalOpen(true);
   };
 
-  const handleChangeStatus = async (candidateId: string, newStatus: Candidate['processStatus']) => {
+  const handleChangeStatus = async (
+    candidateId: string,
+    newStatus: Candidate["processStatus"]
+  ) => {
     try {
       const success = await updateCVStatus(candidateId, newStatus);
       if (success) {
         // Update local state
-        setCandidates(prev => prev.map(candidate => 
-          candidate.id === candidateId 
-            ? { ...candidate, processStatus: newStatus }
-            : candidate
-        ));
+        setCandidates((prev) =>
+          prev.map((candidate) =>
+            candidate.id === candidateId
+              ? { ...candidate, processStatus: newStatus }
+              : candidate
+          )
+        );
         toast.success("Estado actualizado");
       } else {
         toast.error("Error al actualizar el estado");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al actualizar el estado");
     }
   };
 
-  const handleScheduleInterviewSubmit = (interviewData: any) => {
+  const handleScheduleInterviewSubmit = () => {
     // In real app, this would save to database
-    toast("Entrevista agendada")
+    toast("Entrevista agendada");
   };
 
   const handleDeleteCandidate = async (candidateId: string) => {
@@ -158,12 +204,14 @@ export default function Dashboard() {
       const success = await deleteCVById(candidateId);
       if (success) {
         // Remove from local state
-        setCandidates(prev => prev.filter(candidate => candidate.id !== candidateId));
+        setCandidates((prev) =>
+          prev.filter((candidate) => candidate.id !== candidateId)
+        );
         toast.success("Candidato eliminado");
       } else {
         toast.error("Error al eliminar el candidato");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error al eliminar el candidato");
     }
   };
@@ -175,7 +223,7 @@ export default function Dashboard() {
       processStatus: [],
       remoteAvailable: undefined,
       minMatchScore: 0,
-      maxMatchScore: 100
+      maxMatchScore: 100,
     });
     setSearchTerm("");
   };
@@ -187,8 +235,12 @@ export default function Dashboard() {
         <div className="container mx-auto px-1 md:px-6 py-4">
           <div className="flex items-center justify-between flex-wrap">
             <div>
-              <h1 className="md:text-2xl text-xl font-bold text-foreground">Reclutamiento Técnico</h1>
-              <p className="text-muted-foreground">Dashboard de análisis de CVs con IA</p>
+              <h1 className="md:text-2xl text-xl font-bold text-foreground">
+                Reclutamiento Técnico
+              </h1>
+              <p className="text-muted-foreground">
+                Dashboard de análisis de CVs con IA
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -224,7 +276,7 @@ export default function Dashboard() {
                   className="pl-10"
                 />
               </div>
-              
+
               <div className="flex gap-2">
                 {/* Mobile Filters Sheet */}
                 <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -256,7 +308,9 @@ export default function Dashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-popover">
-                    <SelectItem value="matchScore">Mayor Match Score</SelectItem>
+                    <SelectItem value="matchScore">
+                      Mayor Match Score
+                    </SelectItem>
                     <SelectItem value="name">Nombre A-Z</SelectItem>
                     <SelectItem value="createdAt">Más Recientes</SelectItem>
                     <SelectItem value="seniority">Seniority</SelectItem>
@@ -297,10 +351,9 @@ export default function Dashboard() {
                   No se encontraron candidatos
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {candidates.length === 0 
+                  {candidates.length === 0
                     ? "No tienes candidatos registrados aún"
-                    : "Intenta ajustar los filtros o términos de búsqueda"
-                  }
+                    : "Intenta ajustar los filtros o términos de búsqueda"}
                 </p>
                 {candidates.length > 0 && (
                   <Button onClick={clearFilters} variant="outline">
@@ -310,16 +363,20 @@ export default function Dashboard() {
                 )}
               </div>
             ) : (
-              <div className={
-                viewMode === "grid" 
-                  ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
-                  : "space-y-4"
-              }>
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+                    : "space-y-4"
+                }
+              >
                 {filteredAndSortedCandidates.map((candidate) => (
                   <CandidateCard
                     key={candidate.id}
                     candidate={candidate}
-                    supabaseCandidate={supabaseCandidates.find(sc => sc.id === candidate.id)}
+                    supabaseCandidate={supabaseCandidates.find(
+                      (sc) => sc.id === candidate.id
+                    )}
                     onViewDetails={handleViewDetails}
                     onScheduleInterview={handleScheduleInterview}
                     onChangeStatus={handleChangeStatus}
@@ -335,17 +392,13 @@ export default function Dashboard() {
       {/* Modals */}
       <CandidateDetailModal
         candidate={selectedCandidate}
-        supabaseCandidate={selectedCandidate ? supabaseCandidates.find(sc => sc.id === selectedCandidate.id) : null}
+        supabaseCandidate={
+          selectedCandidate
+            ? supabaseCandidates.find((sc) => sc.id === selectedCandidate.id)
+            : null
+        }
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
-        onScheduleInterview={handleScheduleInterview}
-      />
-
-      <InterviewModal
-        candidate={selectedCandidate}
-        isOpen={isInterviewModalOpen}
-        onClose={() => setIsInterviewModalOpen(false)}
-        onSchedule={handleScheduleInterviewSubmit}
       />
     </div>
   );

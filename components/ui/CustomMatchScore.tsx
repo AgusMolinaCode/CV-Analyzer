@@ -82,7 +82,6 @@ function calculateCustomMatchScore(candidate: Candidates): {
   totalScore += breakdown.technicalSkills;
 
   // 2. Experience Assessment (25% weight)
-  const experienceWeight = 0.25;
   const yearsExperience = candidate.anos_experiencia || 0;
   
   // Non-linear experience scoring (diminishing returns after 8 years)
@@ -102,7 +101,6 @@ function calculateCustomMatchScore(candidate: Candidates): {
   totalScore += breakdown.experience;
 
   // 3. Seniority Level Assessment (20% weight)
-  const seniorityWeight = 0.20;
   const seniorityMap: { [key: string]: number } = {
     'junior': 60,
     'semi-senior': 75,
@@ -120,7 +118,6 @@ function calculateCustomMatchScore(candidate: Candidates): {
   totalScore += breakdown.seniority;
 
   // 4. Qualifications Assessment (10% weight)
-  const qualificationsWeight = 0.10;
   let qualificationsScore = 0;
   
   // English level
@@ -148,7 +145,6 @@ function calculateCustomMatchScore(candidate: Candidates): {
   totalScore += breakdown.qualifications;
 
   // 5. Match Details Assessment (5% weight)
-  const matchDetailsWeight = 0.05;
   let matchDetailsScore = 0;
   
   if (candidate.match_details) {
@@ -164,13 +160,10 @@ function calculateCustomMatchScore(candidate: Candidates): {
   totalScore += breakdown.matchDetails;
 
   // 6. Skills Distribution Assessment (5% weight)
-  const skillsDistWeight = 0.05;
   let skillsDistScore = 0;
   
   if (candidate.distribucion_skills) {
     const dist = candidate.distribucion_skills;
-    const totalSkillsPoints = (dist.backend || 0) + (dist.frontend || 0) + 
-                             (dist.data || 0) + (dist.devops || 0) + (dist.gestión || 0);
     
     // Reward balanced skill distribution
     const skillsVariance = Math.abs(20 - (dist.backend || 0)) + 
