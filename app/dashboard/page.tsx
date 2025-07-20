@@ -286,14 +286,14 @@ export default function Dashboard() {
                       Filtros
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-80">
+                  <SheetContent side="left" className="w-80 overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Filtros de Candidatos</SheetTitle>
                       <SheetDescription>
                         Filtra candidatos por criterios específicos
                       </SheetDescription>
                     </SheetHeader>
-                    <div className="mt-6">
+                    <div className="mt-6 pb-6">
                       <CandidateFilters
                         filters={filters}
                         onFiltersChange={setFilters}

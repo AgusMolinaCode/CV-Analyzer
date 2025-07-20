@@ -20,7 +20,7 @@ const Page = () => {
             <div className="flex justify-center mb-6">
               <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
                 <Sparkles className="h-4 w-4" />
-                Powered by AI 
+                Powered by AI
               </div>
             </div>
 
@@ -60,13 +60,16 @@ const Page = () => {
           </div>
         </div>
       </section>
-          <CurvedLoop
-            marqueeText="CVAnalyzer.ai *"
-            speed={0.4}
-            curveAmount={0}
-            direction="right"
-            interactive={true}
-          />
+      <div className="hidden md:block">
+      <CurvedLoop
+        marqueeText="CVAnalyzer.ai *"
+        speed={0.4}
+        curveAmount={0}
+        direction="right"
+        interactive={true}
+      />
+
+      </div>
 
       <HowItWorks />
       <Benefits />

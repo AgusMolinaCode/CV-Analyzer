@@ -126,11 +126,11 @@ const CurvedLoop: FC<CurvedLoopProps> = ({
     : "auto";
 
   const textColor =
-    mounted && theme === "dark" ? "fill-zinc-900/50" : "fill-zinc-200/50";
+    mounted && theme === "dark" ? "fill-zinc-900/50" : "fill-amber-100/50";
 
   return (
     <div
-      className="h-12 pt-32 flex items-center justify-center w-full"
+      className="h-40 pt-36 flex items-center justify-center w-full"
       style={{ visibility: ready ? "visible" : "hidden", cursor: cursorStyle }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -138,7 +138,7 @@ const CurvedLoop: FC<CurvedLoopProps> = ({
       onPointerLeave={endDrag}
     >
       <svg
-        className="select-none w-full overflow-visible block aspect-[100/12] text-[5rem] font-bold tracking-[6px] uppercase leading-none"
+        className="select-none w-full overflow-visible block aspect-[100/12] text-[5rem] font-bold tracking-[5px] uppercase leading-none"
         viewBox="0 0 1440 120"
       >
         <text
