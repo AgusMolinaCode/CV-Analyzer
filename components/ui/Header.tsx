@@ -16,15 +16,15 @@ export function Header() {
 
   return (
     <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-4">
+      <div className="container mx-auto px-2 py-4">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <Link
             href="/"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <Brain className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">
+            <Brain className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            <span className="text-lg md:text-xl font-bold text-foreground">
               CVAnalyzer.ai
             </span>
           </Link>
@@ -53,19 +53,21 @@ export function Header() {
             </nav>
           )}
           {/* Auth & Toggle - Right */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <SignedIn>
-              <Link
-                href="/dashboard"
-                className="text-muted-foreground hover:text-foreground transition-colors font-medium"
-              >
-                Dashboard
-              </Link>
+              {path !== "/dashboard" && (
+                <Link
+                  href="/dashboard"
+                  className="text-muted-foreground hover:text-foreground transition-colors font-medium"
+                >
+                  Dashboard
+                </Link>
+              )}
             </SignedIn>
             <ModeToggle />
             <SignedOut>
               <SignInButton>
-                <button className="bg-zinc-800 text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
+                <button className="bg-zinc-800 text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-2 sm:px-5 cursor-pointer">
                   Iniciar Sesión
                 </button>
               </SignInButton>

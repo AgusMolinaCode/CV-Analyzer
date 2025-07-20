@@ -5,7 +5,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import type { CandidateFilters } from "@/types/candidate";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { getUniqueStackTechnologies } from "@/lib/supabase-queries";
 
 interface CandidateFiltersProps {
   filters: CandidateFilters;
@@ -15,9 +18,36 @@ interface CandidateFiltersProps {
 
 const seniorityOptions = ['Junior', 'Semi-Senior', 'Senior', 'Lead'];
 const statusOptions = ['pendiente', 'revisado', 'entrevista', 'rechazado', 'contratado'];
-const stackOptions = ['React', 'Node.js', 'Java', 'Spring Boot', 'Python', 'Vue.js', 'Angular', 'TypeScript', 'CSS'];
 
 export function CandidateFilters({ filters, onFiltersChange, onClearFilters }: CandidateFiltersProps) {
+  const { user } = useUser();
+  const [allStackOptions, setAllStackOptions] = useState<string[]>(['React', 'Node.js', 'Java', 'Spring Boot', 'Python', 'Vue.js', 'Angular', 'TypeScript', 'CSS']);
+  const [visibleStackCount, setVisibleStackCount] = useState(10);
+
+  const visibleStackOptions = allStackOptions.slice(0, visibleStackCount);
+  const hasMoreStacks = visibleStackCount < allStackOptions.length;
+
+  useEffect(() => {
+    const loadStackOptions = async () => {
+      if (user?.id) {
+        try {
+          const uniqueStacks = await getUniqueStackTechnologies(user.id);
+          if (uniqueStacks.length > 0) {
+            setAllStackOptions(uniqueStacks);
+            setVisibleStackCount(10);
+          }
+        } catch (error) {
+          console.error('Error loading stack technologies:', error);
+        }
+      }
+    };
+
+    loadStackOptions();
+  }, [user?.id]);
+
+  const showMoreStacks = () => {
+    setVisibleStackCount(prev => Math.min(prev + 10, allStackOptions.length));
+  };
   const updateFilter = (key: keyof CandidateFilters, value: any) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -39,7 +69,7 @@ export function CandidateFilters({ filters, onFiltersChange, onClearFilters }: C
     filters.maxMatchScore < 100;
 
   return (
-    <Card className="h-fit">
+    <Card className="h-fit bg-transparent border-none shadow-none">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Filtros</CardTitle>
@@ -93,9 +123,21 @@ export function CandidateFilters({ filters, onFiltersChange, onClearFilters }: C
 
         {/* Stack Filter */}
         <div>
-          <Label className="text-sm font-medium mb-3 block">Stack tecnológico</Label>
+          <div className="flex items-center gap-2 mx-auto mb-3">
+            <Label className="text-sm font-medium">Stack tecnológico</Label>
+            {visibleStackCount > 10 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setVisibleStackCount(10)}
+                className=" px-2 text-xs text-muted-foreground"
+              >
+                Reset
+              </Button>
+            )}
+          </div>
           <div className="space-y-2">
-            {stackOptions.map((tech) => (
+            {visibleStackOptions.map((tech) => (
               <div key={tech} className="flex items-center space-x-2">
                 <Checkbox
                   id={tech}
@@ -107,6 +149,17 @@ export function CandidateFilters({ filters, onFiltersChange, onClearFilters }: C
                 </Label>
               </div>
             ))}
+            {hasMoreStacks && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={showMoreStacks}
+                className="w-full mt-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                Ver más ({allStackOptions.length - visibleStackCount} restantes)
+                <ChevronDown className="h-3 w-3 ml-1" />
+              </Button>
+            )}
           </div>
         </div>
 

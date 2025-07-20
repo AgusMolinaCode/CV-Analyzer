@@ -8,6 +8,22 @@ import { Testimonials } from "@/components/ui/Testimonials";
 import { Sparkles } from "lucide-react";
 import { Footer } from "@/components/ui/Footer";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import CurvedLoop from "@/components/ui/CurvedLoop";
+import OpenAI from "@/components/ui/OpenAI";
+
+
+{/* <RotatingText
+  texts={['React', 'Bits', 'Is', 'Cool!']}
+  mainClassName="px-2 sm:px-2 md:px-3 bg-cyan-300 text-black overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg"
+  staggerFrom={"last"}
+  initial={{ y: "100%" }}
+  animate={{ y: 0 }}
+  exit={{ y: "-120%" }}
+  staggerDuration={0.025}
+  splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+  rotationInterval={2000}
+/> */}
 
 const Page = () => {
   return (
@@ -19,7 +35,7 @@ const Page = () => {
             <div className="flex justify-center mb-6">
               <div className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
                 <Sparkles className="h-4 w-4" />
-                Powered by AI
+                Powered by AI 
               </div>
             </div>
 
@@ -48,7 +64,6 @@ const Page = () => {
               </Button>
             </div>
           </div>
-
           {/* File Upload Section */}
           <div id="upload-section" className="max-w-2xl mx-auto">
             <SignedIn>
@@ -59,13 +74,14 @@ const Page = () => {
             </SignedOut>
           </div>
         </div>
-
-        {/* Background decoration */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl"></div>
-        </div>
       </section>
+          <CurvedLoop
+            marqueeText="CVAnalyzer.ai *"
+            speed={0.4}
+            curveAmount={0}
+            direction="right"
+            interactive={true}
+          />
 
       <HowItWorks />
       <Benefits />

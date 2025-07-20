@@ -28,8 +28,11 @@ export async function uploadPDF(formData: FormData) {
     webhookFormData.append("clerk_id", clerkId);
 
     // Send POST request to webhook
-    const webhookUrl =
-      "https://primary-production-1e497.up.railway.app/webhook/9380627a-7950-4a23-adae-6d5f1218bd10";
+    const webhookUrl = process.env.WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      return { success: false, error: "Webhook URL not configured" };
+    }
 
     const response = await fetch(webhookUrl, {
       method: "POST",

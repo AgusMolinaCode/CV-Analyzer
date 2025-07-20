@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,13 +9,26 @@ import CandidateCard from "@/components/ui/CandidateCard";
 import { CandidateFilters } from "@/components/ui/CandidateFilters";
 import { CandidateDetailModal } from "@/components/ui/CandidateDetailModal";
 import { InterviewModal } from "@/components/ui/InterviewModal";
-import { mockCandidates } from "@/data/mockCandidates";
+import { fetchUserCVs, updateCVStatus, deleteCVById } from "@/lib/supabase-queries";
+import { mapSupabaseCandidateToFrontend } from "@/lib/adapters";
 import type { Candidate, CandidateFilters as CandidateFiltersType } from "@/types/candidate";
 import { Search, Users, Filter, Grid, List } from "lucide-react";
-import { toast } from "sonner"
+import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function Dashboard() {
-  const [candidates] = useState<Candidate[]>(mockCandidates);
+  const { user } = useUser();
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [supabaseCandidates, setSupabaseCandidates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("matchScore");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -30,6 +44,28 @@ export default function Dashboard() {
     minMatchScore: 0,
     maxMatchScore: 100
   });
+
+  // Fetch candidates from Supabase when user is available
+  useEffect(() => {
+    const loadCandidates = async () => {
+      if (user?.id) {
+        setLoading(true);
+        try {
+          const fetchedSupabaseCandidates = await fetchUserCVs(user.id);
+          setSupabaseCandidates(fetchedSupabaseCandidates);
+          const mappedCandidates = fetchedSupabaseCandidates.map(mapSupabaseCandidateToFrontend);
+          setCandidates(mappedCandidates);
+        } catch (error) {
+         
+          toast.error('Error al cargar los candidatos');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadCandidates();
+  }, [user?.id]);
 
   const filteredAndSortedCandidates = useMemo(() => {
     let filtered = candidates.filter(candidate => {
@@ -93,14 +129,43 @@ export default function Dashboard() {
     setIsInterviewModalOpen(true);
   };
 
-  const handleChangeStatus = (candidateId: string, newStatus: Candidate['processStatus']) => {
-    // In real app, this would update the database
-    toast("Estado actualizado")
+  const handleChangeStatus = async (candidateId: string, newStatus: Candidate['processStatus']) => {
+    try {
+      const success = await updateCVStatus(candidateId, newStatus);
+      if (success) {
+        // Update local state
+        setCandidates(prev => prev.map(candidate => 
+          candidate.id === candidateId 
+            ? { ...candidate, processStatus: newStatus }
+            : candidate
+        ));
+        toast.success("Estado actualizado");
+      } else {
+        toast.error("Error al actualizar el estado");
+      }
+    } catch (error) {
+      toast.error("Error al actualizar el estado");
+    }
   };
 
   const handleScheduleInterviewSubmit = (interviewData: any) => {
     // In real app, this would save to database
     toast("Entrevista agendada")
+  };
+
+  const handleDeleteCandidate = async (candidateId: string) => {
+    try {
+      const success = await deleteCVById(candidateId);
+      if (success) {
+        // Remove from local state
+        setCandidates(prev => prev.filter(candidate => candidate.id !== candidateId));
+        toast.success("Candidato eliminado");
+      } else {
+        toast.error("Error al eliminar el candidato");
+      }
+    } catch (error) {
+      toast.error("Error al eliminar el candidato");
+    }
   };
 
   const clearFilters = () => {
@@ -119,10 +184,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-1 md:px-6 py-4">
+          <div className="flex items-center justify-between flex-wrap">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Reclutamiento Técnico</h1>
+              <h1 className="md:text-2xl text-xl font-bold text-foreground">Reclutamiento Técnico</h1>
               <p className="text-muted-foreground">Dashboard de análisis de CVs con IA</p>
             </div>
             <div className="flex items-center gap-3">
@@ -135,10 +200,10 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-6">
-        <div className="flex gap-6">
-          {/* Sidebar - Filters */}
-          <aside className="w-80 flex-shrink-0">
+      <div className="container mx-auto px-1 md:px-6 py-6">
+        <div className="flex md:gap-6 gap-1">
+          {/* Sidebar - Filters - Desktop only */}
+          <aside className="w-80 flex-shrink-0 hidden lg:block">
             <CandidateFilters
               filters={filters}
               onFiltersChange={setFilters}
@@ -161,6 +226,31 @@ export default function Dashboard() {
               </div>
               
               <div className="flex gap-2">
+                {/* Mobile Filters Sheet */}
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="lg:hidden">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filtros
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-80">
+                    <SheetHeader>
+                      <SheetTitle>Filtros de Candidatos</SheetTitle>
+                      <SheetDescription>
+                        Filtra candidatos por criterios específicos
+                      </SheetDescription>
+                    </SheetHeader>
+                    <div className="mt-6">
+                      <CandidateFilters
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                        onClearFilters={clearFilters}
+                      />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-48">
                     <SelectValue />
@@ -173,7 +263,7 @@ export default function Dashboard() {
                   </SelectContent>
                 </Select>
 
-                <div className="flex border rounded-lg">
+                <div className="hidden lg:flex border rounded-lg">
                   <Button
                     variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
@@ -195,19 +285,29 @@ export default function Dashboard() {
             </div>
 
             {/* Results */}
-            {filteredAndSortedCandidates.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Cargando candidatos...</p>
+              </div>
+            ) : filteredAndSortedCandidates.length === 0 ? (
               <div className="text-center py-12">
                 <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
                   No se encontraron candidatos
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Intenta ajustar los filtros o términos de búsqueda
+                  {candidates.length === 0 
+                    ? "No tienes candidatos registrados aún"
+                    : "Intenta ajustar los filtros o términos de búsqueda"
+                  }
                 </p>
-                <Button onClick={clearFilters} variant="outline">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Limpiar filtros
-                </Button>
+                {candidates.length > 0 && (
+                  <Button onClick={clearFilters} variant="outline">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Limpiar filtros
+                  </Button>
+                )}
               </div>
             ) : (
               <div className={
@@ -219,9 +319,11 @@ export default function Dashboard() {
                   <CandidateCard
                     key={candidate.id}
                     candidate={candidate}
+                    supabaseCandidate={supabaseCandidates.find(sc => sc.id === candidate.id)}
                     onViewDetails={handleViewDetails}
                     onScheduleInterview={handleScheduleInterview}
                     onChangeStatus={handleChangeStatus}
+                    onDeleteCandidate={handleDeleteCandidate}
                   />
                 ))}
               </div>
@@ -233,6 +335,7 @@ export default function Dashboard() {
       {/* Modals */}
       <CandidateDetailModal
         candidate={selectedCandidate}
+        supabaseCandidate={selectedCandidate ? supabaseCandidates.find(sc => sc.id === selectedCandidate.id) : null}
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         onScheduleInterview={handleScheduleInterview}

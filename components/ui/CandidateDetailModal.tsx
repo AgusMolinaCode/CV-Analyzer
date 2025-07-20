@@ -1,85 +1,113 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Candidate } from "@/types/candidate";
-import { 
-  Download, 
-  ExternalLink, 
-  Briefcase, 
-  Code, 
-  Heart, 
-  MapPin, 
-  Mail, 
+import {
+  Download,
+  ExternalLink,
+  Briefcase,
+  Code,
+  Heart,
+  MapPin,
+  Mail,
   Phone,
   Globe,
   Calendar,
   Github,
-  Linkedin
+  Linkedin,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CustomMatchScore } from "@/components/ui/CustomMatchScore";
+import type { Candidates } from "@/lib/interfaces";
 
 interface CandidateDetailModalProps {
   candidate: Candidate | null;
+  supabaseCandidate?: Candidates | null;
   isOpen: boolean;
   onClose: () => void;
   onScheduleInterview: (candidate: Candidate) => void;
 }
 
-export function CandidateDetailModal({ 
-  candidate, 
-  isOpen, 
-  onClose, 
-  onScheduleInterview 
+export function CandidateDetailModal({
+  candidate,
+  supabaseCandidate,
+  isOpen,
+  onClose,
+  onScheduleInterview,
 }: CandidateDetailModalProps) {
   if (!candidate) return null;
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-5xl h-full md:max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="text-xl">Perfil del Candidato</DialogTitle>
+          <DialogTitle>
+            <div className="flex gap-2 md:flex-row flex-col max-w-5/6 md:w-full">
+              {/* <Button onClick={() => onScheduleInterview(candidate)}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Agendar Entrevista
+              </Button> */}
+              <Button variant="outline" asChild>
+                <a
+                  href={candidate.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Descargar CV
+                </a>
+              </Button>
+            </div>
+          </DialogTitle>
         </DialogHeader>
-        
+
         <ScrollArea className="h-[80vh] pr-4">
           <div className="space-y-6">
             {/* Header Section */}
             <div className="flex items-start gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarFallback className="text-lg font-semibold bg-primary text-primary-foreground">
-                  {getInitials(candidate.fullName)}
-                </AvatarFallback>
-              </Avatar>
-              
+              {/* <Avatar className="h-16 w-16"> */}
+              {/* Custom Match Score */}
+              {supabaseCandidate && (
+                <div className="flex justify-center">
+                  <div className="w-24 h-24">
+                    <CustomMatchScore
+                      candidate={supabaseCandidate}
+                      compact={true}
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="flex-1">
-                <h2 className="text-2xl font-bold">{candidate.fullName}</h2>
-                <p className="text-lg text-muted-foreground">{candidate.professionalTitle}</p>
-                
+                <h2 className="md:text-2xl text-xl font-bold">{candidate.fullName}</h2>
+                <p className="text-lg text-muted-foreground">
+                  {candidate.professionalTitle}
+                </p>
+
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Badge className="bg-success/10 text-success">
                     Match Score: {candidate.matchScore}%
                   </Badge>
                   <Badge variant="outline">{candidate.seniority}</Badge>
-                  <Badge className="capitalize">{candidate.processStatus}</Badge>
+                  <Badge className="capitalize">
+                    {candidate.processStatus}
+                  </Badge>
                 </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button onClick={() => onScheduleInterview(candidate)}>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Agendar Entrevista
-                </Button>
-                <Button variant="outline" asChild>
-                  <a href={candidate.pdfUrl} target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-2" />
-                    Descargar CV
-                  </a>
-                </Button>
               </div>
             </div>
 
@@ -109,7 +137,9 @@ export function CandidateDetailModal({
                   </p>
                   <p className="flex items-center">
                     <Globe className="h-4 w-4 mr-2 text-muted-foreground" />
-                    {candidate.remoteAvailable ? 'Disponible para remoto' : 'Solo presencial'}
+                    {candidate.remoteAvailable
+                      ? "Disponible para remoto"
+                      : "Solo presencial"}
                   </p>
                 </div>
               </div>
@@ -118,8 +148,17 @@ export function CandidateDetailModal({
                 <h3 className="font-semibold">Enlaces</h3>
                 <div className="space-y-2">
                   {candidate.linkedinUrl && (
-                    <Button variant="outline" size="sm" asChild className="w-full justify-start">
-                      <a href={candidate.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="w-full justify-start"
+                    >
+                      <a
+                        href={candidate.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Linkedin className="h-4 w-4 mr-2" />
                         LinkedIn
                         <ExternalLink className="h-3 w-3 ml-auto" />
@@ -127,8 +166,17 @@ export function CandidateDetailModal({
                     </Button>
                   )}
                   {candidate.githubUrl && (
-                    <Button variant="outline" size="sm" asChild className="w-full justify-start">
-                      <a href={candidate.githubUrl} target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="w-full justify-start"
+                    >
+                      <a
+                        href={candidate.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Github className="h-4 w-4 mr-2" />
                         GitHub
                         <ExternalLink className="h-3 w-3 ml-auto" />
@@ -136,8 +184,17 @@ export function CandidateDetailModal({
                     </Button>
                   )}
                   {candidate.portfolioUrl && (
-                    <Button variant="outline" size="sm" asChild className="w-full justify-start">
-                      <a href={candidate.portfolioUrl} target="_blank" rel="noopener noreferrer">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                      className="w-full justify-start"
+                    >
+                      <a
+                        href={candidate.portfolioUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Globe className="h-4 w-4 mr-2" />
                         Portfolio
                         <ExternalLink className="h-3 w-3 ml-auto" />
@@ -158,11 +215,14 @@ export function CandidateDetailModal({
               </h3>
               <div className="space-y-4">
                 {candidate.workExperience.map((job) => (
-                  <div key={job.id} className="border-l-2 border-primary/20 pl-4">
+                  <div
+                    key={job.id}
+                    className="border-l-2 border-primary/20 pl-4"
+                  >
                     <h4 className="font-medium">{job.position}</h4>
                     <p className="text-primary font-medium">{job.company}</p>
                     <p className="text-sm text-muted-foreground">
-                      {job.startDate} - {job.endDate || 'Presente'}
+                      {job.startDate} - {job.endDate || "Presente"}
                     </p>
                     <p className="mt-2 text-sm">{job.description}</p>
                     <div className="flex flex-wrap gap-1 mt-2">
@@ -196,7 +256,7 @@ export function CandidateDetailModal({
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="font-medium mb-2">Frameworks</h4>
                   <div className="flex flex-wrap gap-1">
@@ -207,7 +267,7 @@ export function CandidateDetailModal({
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="font-medium mb-2">Bases de Datos</h4>
                   <div className="flex flex-wrap gap-1">
@@ -218,7 +278,7 @@ export function CandidateDetailModal({
                     ))}
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="font-medium mb-2">Herramientas</h4>
                   <div className="flex flex-wrap gap-1">
@@ -229,13 +289,17 @@ export function CandidateDetailModal({
                     ))}
                   </div>
                 </div>
-                
+
                 {candidate.technicalStack.cloud.length > 0 && (
                   <div className="md:col-span-2">
                     <h4 className="font-medium mb-2">Cloud</h4>
                     <div className="flex flex-wrap gap-1">
                       {candidate.technicalStack.cloud.map((cloud) => (
-                        <Badge key={cloud} variant="secondary" className="text-xs">
+                        <Badge
+                          key={cloud}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {cloud}
                         </Badge>
                       ))}
@@ -267,8 +331,10 @@ export function CandidateDetailModal({
               <>
                 <Separator />
                 <div>
-                  <h3 className="font-semibold mb-2">Notas del Reclutador</h3>
-                  <p className="text-sm bg-muted p-3 rounded-lg">{candidate.notes}</p>
+                  <h3 className="font-semibold mb-2">Notas de asistente AI</h3>
+                  <p className="text-sm bg-muted p-3 rounded-lg">
+                    {candidate.notes}
+                  </p>
                 </div>
               </>
             )}
@@ -287,17 +353,34 @@ export function CandidateDetailModal({
                       <div key={interview.id} className="border rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-medium capitalize">{interview.type}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(interview.scheduledDate).toLocaleString()}
+                            <p className="font-medium capitalize">
+                              {interview.type}
                             </p>
-                            <p className="text-sm">Entrevistador: {interview.interviewerName}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(
+                                interview.scheduledDate
+                              ).toLocaleString()}
+                            </p>
+                            <p className="text-sm">
+                              Entrevistador: {interview.interviewerName}
+                            </p>
                           </div>
-                          <Badge className="capitalize">{interview.status}</Badge>
+                          <Badge className="capitalize">
+                            {interview.status}
+                          </Badge>
                         </div>
                         {interview.meetingUrl && (
-                          <Button variant="link" size="sm" asChild className="p-0 h-auto mt-2">
-                            <a href={interview.meetingUrl} target="_blank" rel="noopener noreferrer">
+                          <Button
+                            variant="link"
+                            size="sm"
+                            asChild
+                            className="p-0 h-auto mt-2"
+                          >
+                            <a
+                              href={interview.meetingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               <ExternalLink className="h-3 w-3 mr-1" />
                               Unirse a la reunión
                             </a>
