@@ -24,6 +24,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CustomMatchScore } from "@/components/ui/CustomMatchScore";
 import type { Candidates } from "@/lib/interfaces";
+import { normalizeUrl } from "@/lib/utils/urlNormalizer";
 
 interface CandidateDetailModalProps {
   candidate: Candidate | null;
@@ -140,7 +141,7 @@ export function CandidateDetailModal({
                       className="w-full justify-start"
                     >
                       <a
-                        href={candidate.linkedinUrl}
+                        href={normalizeUrl(candidate.linkedinUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -158,7 +159,7 @@ export function CandidateDetailModal({
                       className="w-full justify-start"
                     >
                       <a
-                        href={candidate.githubUrl}
+                        href={normalizeUrl(candidate.githubUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -176,7 +177,7 @@ export function CandidateDetailModal({
                       className="w-full justify-start"
                     >
                       <a
-                        href={candidate.portfolioUrl}
+                        href={normalizeUrl(candidate.portfolioUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

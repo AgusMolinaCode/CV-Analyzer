@@ -57,7 +57,9 @@ export const FileUpload = ({
   };
 
   const handleUpload = async () => {
-    if (!files.length || !isSignedIn) return;
+    if (!files.length || !isSignedIn) {
+      return;
+    }
 
     setUploading(true);
     setShowLoadingSteps(true);
@@ -76,7 +78,8 @@ export const FileUpload = ({
           router.push("/dashboard");
         }, 2000);
       }
-    } catch {
+    } catch (error) {
+      console.error("[Upload] Error:", error instanceof Error ? error.message : "Unknown error");
       setUploadResult({
         success: false,
         error: "Error uploading file",

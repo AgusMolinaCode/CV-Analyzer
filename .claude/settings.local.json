@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/urano/OneDrive/Escritorio/**)",
+      "Bash(test:*)",
+      "Bash(node scripts/test-webhook.js:*)",
+      "Bash(npm install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
