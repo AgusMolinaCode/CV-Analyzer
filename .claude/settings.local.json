@@ -6,7 +6,10 @@
       "Bash(node scripts/test-webhook.js:*)",
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Read(//c/Users/urano/**)"
+      "Read(//c/Users/urano/**)",
+      "Bash(git add:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []
