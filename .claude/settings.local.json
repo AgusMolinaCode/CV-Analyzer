@@ -4,7 +4,9 @@
       "Read(//c/Users/urano/OneDrive/Escritorio/**)",
       "Bash(test:*)",
       "Bash(node scripts/test-webhook.js:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Read(//c/Users/urano/**)"
     ],
     "deny": [],
     "ask": []
