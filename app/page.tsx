@@ -45,7 +45,7 @@ const Page = () => {
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
               >
-                Ver cómo funciona
+                Ver cómo funciona..
               </Button>
             </div>
           </div>
